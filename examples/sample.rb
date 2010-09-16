@@ -1,14 +1,13 @@
 # You can set options like so
-set :web, { :server => "example.com", :production => true }
+set :servers, {
+  "example.com" => { :role => [:web, :db], :ip => "10.11.12.13" },
+}
 set :arg, "foo"
 
 # options can also be blocks, in which case they become callable
 set :show_uptime do
   run "uptime"
 end
-
-# You can bind a variable's content into the current context like so
-using web # Now 'server' and 'production' will be top-level variables
 
 # You can run local commands inside a block
 run_locally do
@@ -20,12 +19,18 @@ run_locally :arg => "bar" do
   run "echo #{arg}"# Will output 'bar'
 end
 
-# You can run a set of commands on a remote server like so
-run_on_server web do
+# You can run a set of commands on all remote server like so
+run_on_server servers do
   run "whoami"  
 end
-# You can define servers as hashes or bare hostnames...
-run_on_server [web, "otherhost.com"] do
+
+# You can run a set of commands based on roles like so
+run_on_server servers.with_role(:web) do
+  run "whoami"
+end
+
+# You can also define servers as bare hostnames...
+run_on_server "otherhost.com" do
   run "hostname"
   # This runs the show_uptime block with the current set of variables
   show_uptime  
