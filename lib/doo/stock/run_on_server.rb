@@ -13,7 +13,7 @@ Doo::Base.class_eval do
 
         def put(local, remote, opt = {})
           cmdopts = ["-r"]
-          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined? gateway
+          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
           command = "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
           puts "Putting file #{local} to #{remote} via #{command}" if verbose
           system(command) || raise("Scp Error") unless dry_run
@@ -22,7 +22,7 @@ Doo::Base.class_eval do
 
         begin
           cmdopts = ["-MNf -S \"~/.ssh/master-%l-%r@%h:%p\""]
-          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined? gateway
+          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
           command = "ssh #{cmdopts.join(' ')} #{user}@#{host}"
           puts "Running #{command}" if verbose
           system(command) || raise("SSH Error") unless dry_run
