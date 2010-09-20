@@ -4,22 +4,25 @@ Doo::Base.class_eval do
       with_clone(variables.merge({:host => host}).merge(params || {})) do
         def run(cmd, opt = {})
           cmdopts = ["-S \"~/.ssh/master-%l-%r@%h:%p\""]
-          cmdopts << "-t" if opt.include? :pty || opt[:pty]
+          cmdopts << "-t" if !opt.include? :pty || opt[:pty]
           command = "ssh #{cmdopts.join(' ')} #{user}@#{host} #{cmd}"
           puts "Running #{command}" if verbose
           system(command) || raise("SSH Error") unless dry_run
           $?
         end
 
-        def put(local, remote)
-          puts "scp -r \"#{local}\" \"#{host}:#{remote}\"" if verbose
-          system("scp -r \"#{local}\" \"#{host}:#{remote}\"") || raise("SSH Error") unless dry_run
+        def put(local, remote, opt = {})
+          cmdopts = ["-r"]
+          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined? gateway
+          command = "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
+          puts "Putting file #{local} to #{remote} via #{command}" if verbose
+          system(command) || raise("Scp Error") unless dry_run
           $?
         end
 
         begin
           cmdopts = ["-MNf -S \"~/.ssh/master-%l-%r@%h:%p\""]
-          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined? :gateway
+          cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined? gateway
           command = "ssh #{cmdopts.join(' ')} #{user}@#{host}"
           puts "Running #{command}" if verbose
           system(command) || raise("SSH Error") unless dry_run
