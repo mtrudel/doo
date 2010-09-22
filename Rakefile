@@ -10,6 +10,7 @@ begin
     gem.email           = [ "mat@geeky.net" ]
     gem.executables     = %W(doo)
     gem.files           = FileList["[A-Z]*", "{bin,examples,lib,spec}/**/*", 'lib/jeweler/templates/.gitignore']
+    gem.add_dependency  "highline"
   end
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"

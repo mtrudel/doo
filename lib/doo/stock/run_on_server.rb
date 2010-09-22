@@ -1,22 +1,32 @@
+require 'highline'
+
 Doo::Base.class_eval do
   def run_on_server(servers, variables = {}, &block)
     servers.each do |host, params|
       with_clone(variables.merge({:host => host}).merge(params || {})) do
-        def run(cmd, opt = {})
+        def run(remote_cmd, opt = {})
           cmdopts = ["-S \"~/.ssh/master-%l-%r@%h:%p\""]
           cmdopts << "-t" if !opt.include? :pty || opt[:pty]
-          command = "ssh #{cmdopts.join(' ')} #{user}@#{host} #{cmd}"
-          puts "Running #{command}" if verbose
-          system(command) || raise("SSH Error") unless dry_run
+          cmd = "ssh #{cmdopts.join(' ')} #{user}@#{host} #{remote_cmd}"
+          if confirm
+            return false unless HighLine.new.agree("Run #{cmd}? ")
+          elsif verbose
+            puts "Running #{cmd}"
+          end
+          system(cmd) || raise("SSH Error") unless dry_run
           $?
         end
 
         def put(local, remote, opt = {})
           cmdopts = ["-r"]
           cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
-          command = "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
-          puts "Putting file #{local} to #{remote} via #{command}" if verbose
-          system(command) || raise("Scp Error") unless dry_run
+          cmd = "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
+          if confirm
+            return false unless HighLine.new.agree("Run #{cmd}? ")
+          elsif verbose
+            puts "Running #{cmd}"
+          end
+          system(cmd) || raise("Scp Error") unless dry_run
           $?
         end
 

@@ -14,6 +14,11 @@ module Doo
             options[:verbose] = true
           end
           
+          options[:confirm] = false
+          opts.on( '-c', '--confirm', 'Confirm every command before it gets run' ) do
+            options[:confirm] = true
+          end
+          
           opts.on( '-s', '--set key=value', 'Set runtime values' ) do |arg|            
             options[arg.split('=')[0]] = arg.split('=')[1]
           end

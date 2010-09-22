@@ -17,6 +17,10 @@ describe Doo::CLI::Options do
     Doo::CLI::Options.parse!(["-v", "foo"]).member?(:verbose).should == true
   end
 
+  it "should set on --confirm" do
+    Doo::CLI::Options.parse!(["-c", "foo"]).member?(:confirm).should == true
+  end
+
   it "should set variables" do
     Doo::CLI::Options.parse!(["-swoz=bar", "foo"])["woz"].should == "bar"
   end
