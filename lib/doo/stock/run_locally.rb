@@ -5,9 +5,9 @@ Doo::Base.class_eval do
     with_clone(variables) do
       def run(cmd)
         if confirm
-          return false unless HighLine.new.agree("Run #{cmd}? ")
+          return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
         elsif verbose
-          puts "Running #{cmd}"
+          puts "Running \"#{cmd}\""
         end
         system cmd unless dry_run
         $?

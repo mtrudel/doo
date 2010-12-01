@@ -7,11 +7,11 @@ Doo::Base.class_eval do
         def run(remote_cmd, opt = {})
           cmdopts = ["-S \"~/.ssh/master-%l-%r@%h:%p\""]
           cmdopts << "-t" if !opt.include? :pty || opt[:pty]
-          cmd = "ssh #{cmdopts.join(' ')} #{user}@#{host} #{remote_cmd}"
+          cmd = "ssh #{cmdopts.join(' ')} #{user}@#{host} \"#{remote_cmd.gsub(/\"/, "\\\"")}\""
           if confirm
-            return false unless HighLine.new.agree("Run #{cmd}? ")
+            return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
           elsif verbose
-            puts "Running #{cmd}"
+            puts "Running \"#{cmd}\""
           end
           system(cmd) || raise("SSH Error") unless dry_run
           $?
@@ -22,9 +22,9 @@ Doo::Base.class_eval do
           cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
           cmd = "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
           if confirm
-            return false unless HighLine.new.agree("Run #{cmd}? ")
+            return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
           elsif verbose
-            puts "Running #{cmd}"
+            puts "Running \"#{cmd}\""
           end
           system(cmd) || raise("Scp Error") unless dry_run
           $?

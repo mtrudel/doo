@@ -4,7 +4,7 @@ Doo::Base.class_eval do
       with_clone(variables) do
         @file = file
         def run(cmd)
-          puts "Rendering #{cmd}" if verbose
+          puts "Rendering \"#{cmd}\"" if verbose
           @file.puts cmd
         end
         check_prereqs do
