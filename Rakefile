@@ -3,7 +3,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.version
     gem.name            = "doo"
-    gem.summary         = %Q{Doo - an stacked-context approach to deployment scripting }
+    gem.summary         = %Q{Doo - a stacked-context approach to deployment scripting }
     gem.description     = %Q{Doo is a deployment scripting tool in the vein of capistrano and sprinkle that uses stacked contexts and a aspect-ish data model}
     gem.homepage        = "http://github.com/mtrudel/doo"
     gem.authors         = [ "Mat Trudel" ]
