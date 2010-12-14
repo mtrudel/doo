@@ -6,7 +6,8 @@ Doo::Base.class_eval do
       with_clone(variables.merge({:host => host}).merge(params || {})) do
         def run(remote_cmd, opt = {})
           cmdopts = ["-S \"~/.ssh/master-%l-%r@%h:%p\""]
-          cmdopts << "-t" if !opt.include? :pty || opt[:pty]
+          cmdopts << "-t" if !opt.include? :pty || opt[:pty]          
+          cmdopts << "-p#{ssh_port}" if defined? ssh_port
           cmd = "ssh #{cmdopts.join(' ')} #{user}@#{host} \"#{remote_cmd.gsub(/\"/, "\\\"")}\""
           if confirm
             return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
