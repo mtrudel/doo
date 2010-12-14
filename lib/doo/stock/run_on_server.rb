@@ -28,7 +28,9 @@ Doo::Base.class_eval do
             puts "Running \"#{cmd}\""
           end
           system(cmd) || raise("Scp Error") unless dry_run
-          $?
+          result = $?
+          run("chmod #{opt[:mode]} #{remote}") if defined? opt[:mode]
+          result
         end
 
         begin
