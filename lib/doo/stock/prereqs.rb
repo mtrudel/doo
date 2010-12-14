@@ -1,13 +1,9 @@
 Doo::Base.class_eval do
-  def prereq(cmd)
-    raise PrerequisiteFailure unless run cmd == true
+  def if_passes(test, &block)
+    yield if run "#{test}"
   end
   
-  def check_prereqs
-    begin
-      yield
-    rescue PrerequisiteFailure
-      puts "Pre-requisite test failed: ##{$!}"
-    end
+  def if_fails(test, &block)
+    yield unless run "#{test}"
   end
 end
