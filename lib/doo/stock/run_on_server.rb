@@ -1,51 +1,35 @@
-require 'highline'
-
 Doo::Base.class_eval do
   def run_on_server(servers, variables = {}, &block)
     servers.each do |host, params|
       with_clone(variables.merge({:host => host}).merge(params || {})) do
-        def run(remote_cmd, opt = {})
+        def run(remote_cmd, opts = {})
           cmdopts = ["-S \"~/.ssh/master-%l-%r@%h:%p\""]
-          cmdopts << "-t" if !opt.include? :pty || opt[:pty]          
+          cmdopts << "-t" if !opts.include? :pty || opts[:pty]
           cmdopts << "-p#{ssh_port}" if defined? ssh_port
-          cmd = "ssh #{cmdopts.join(' ')} #{user}@#{host} \"#{remote_cmd.gsub(/\"/, "\\\"")}\""
-          if confirm
-            return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
-          elsif verbose
-            puts "Running \"#{cmd}\""
-          end
-          system(cmd) || raise("SSH Error") unless dry_run
-          $?
+          remote_cmd = sudoize(remote_cmd) if opts[:sudo]
+          run! "ssh #{cmdopts.join(' ')} #{user}@#{host} \"#{remote_cmd.gsub(/\"/, "\\\"")}\"", opts
         end
 
-        def put(local, remote, opt = {})
+        def put(local, remote, opts = {})
           cmdopts = ["-r"]
           cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
-          cmd = "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
-          if confirm
-            return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
-          elsif verbose
-            puts "Running \"#{cmd}\""
-          end
-          system(cmd) || raise("Scp Error") unless dry_run
-          result = $?
-          run("chmod #{opt[:mode]} #{remote}") if defined? opt[:mode]
+          cmdopts << "-P#{ssh_port}" if defined? ssh_port
+          result = run! "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
+          run "chmod #{opts[:mode]} #{remote}" if defined? opts[:mode]
           result
         end
 
         begin
           cmdopts = ["-MNf -S \"~/.ssh/master-%l-%r@%h:%p\""]
           cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
-          command = "ssh #{cmdopts.join(' ')} #{user}@#{host}"
-          puts "Running #{command}" if verbose
-          system(command) || raise("SSH Error") unless dry_run
-          
+          cmdopts << "-p#{ssh_port}" if defined? ssh_port
+          run! "ssh #{cmdopts.join(' ')} #{user}@#{host}"
+
+          # Now run the actual commands
           instance_eval &block if block_given?
         ensure
           cmdopts = ["-Oexit -S \"~/.ssh/master-%l-%r@%h:%p\""]
-          command = "ssh #{cmdopts.join(' ')} #{user}@#{host}"
-          puts "Running #{command}" if verbose
-          system(command) || raise("SSH Error") unless dry_run
+          run! "ssh #{cmdopts.join(' ')} #{user}@#{host}"
         end
       end
     end
