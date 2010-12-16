@@ -11,11 +11,23 @@ Doo::Base.class_eval do
         end
 
         def put(local, remote, opts = {})
+          if defined?(opts[:sudo]) && opts[:sudo]
+            tmp_loc = run("mktemp -d -t dooXXXXX", :capture => true).chomp
+            real_remote = remote
+            remote = File.join(tmp_loc, remote)
+            run "mkdir -p #{File.dirname(remote)}"
+          end
           cmdopts = ["-r"]
           cmdopts << "-oProxyCommand=\"ssh #{gateway} exec nc %h %p\"" if defined?(gateway) && gateway
           cmdopts << "-P#{ssh_port}" if defined? ssh_port
           result = run! "scp #{cmdopts.join(' ')} #{local} #{user}@#{host}:#{remote}"
-          run "chmod #{opts[:mode]} #{remote}" if defined? opts[:mode]
+          run "chmod #{opts[:mode]} #{remote}" if defined?(opts[:mode]) && opts[:mode]
+          sudo "chown -R #{opts[:owner]} #{remote}" if defined?(opts[:owner]) && opts[:owner]
+          sudo "chgrp -R #{opts[:group]} #{remote}" if defined?(opts[:group]) && opts[:group]
+          if defined?(opts[:sudo]) && opts[:sudo]
+            sudo "mv #{remote} #{real_remote}"
+            run "rm -rf #{tmp_loc}"
+          end
           result
         end
 
