@@ -1,4 +1,5 @@
 require 'highline'
+require 'colorize'
 
 Doo::Base.class_eval do
   SEPARATORS = %w( / @ : | _ - # ^ ? )
@@ -26,12 +27,21 @@ Doo::Base.class_eval do
       if confirm
         return false unless HighLine.new.agree("Run \"#{cmd}\"? ")
       elsif verbose
-        puts "Running \"#{cmd}\""
+        puts "Running \"#{cmd}\"".green
       end
       unless dry_run
-        system cmd
-        raise "Error code #{$?}" if $? != 0 && (!defined? just_return_failure || !just_return_failure)
-        return $?.exitstatus
+        if defined?(capture) && capture
+          return `#{cmd}`
+        else
+          system cmd
+          if $? != 0 && (!defined? just_return_failure || !just_return_failure)
+            puts "Error code #{$?} running #{cmd}".red 
+            raise
+          end
+          return $?.exitstatus
+        end
+      else
+        true
       end
     end
   end

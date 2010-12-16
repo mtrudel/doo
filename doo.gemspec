@@ -38,5 +38,7 @@ Gem::Specification.new do |s|
     "spec/doo/cli_spec.rb"
   ]
 
+  s.add_dependency("highline")
+  s.add_dependency("colorize")
 end
 
