@@ -1,4 +1,4 @@
-doo.gemspec
 pkg
+.*.swp
 *.gem
 **/.DS_Store

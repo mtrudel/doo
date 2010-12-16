@@ -30,7 +30,7 @@ module Doo
       obj.instance_eval &block if block_given?
       obj
     end
-    
+
     private
     def singleton_class
       class << self
