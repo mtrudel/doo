@@ -6,8 +6,8 @@ Doo::Base.class_eval do
           cmdopts = ["-S \"~/.ssh/master-%l-%r@%h:%p\""]
           cmdopts << "-t" if !opts.include? :pty || opts[:pty]
           cmdopts << "-p#{ssh_port}" if defined? ssh_port
-          remote_cmd = sudoize(remote_cmd) if opts[:sudo]
-          run! "ssh #{cmdopts.join(' ')} #{user}@#{host} \"#{remote_cmd.gsub(/\"/, "\\\"")}\"", opts
+          remote_cmd.sudoize! if opts[:sudo]
+          run! "ssh #{cmdopts.join(' ')} #{user}@#{host} \"#{remote_cmd.escape_for_shell}\"", opts
         end
 
         def put(local, remote, opts = {})
