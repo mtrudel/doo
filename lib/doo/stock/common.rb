@@ -40,10 +40,11 @@ Doo::Base.class_eval do
           return `#{cmd}`
         else
           system cmd
-          if $? != 0 && (!defined? just_return_failure || !just_return_failure)
+          if $? != 0 && (!defined? return_on_failure || !return_on_failure)
             puts "Error code #{$?} running #{cmd}".red 
             raise
           end
+          puts "Got exit code #{$?.exitstatus}" if verbose
           return $?.exitstatus
         end
       else
