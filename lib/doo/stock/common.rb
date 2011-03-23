@@ -4,6 +4,14 @@ require 'colorize'
 Doo::Base.class_eval do
   SEPARATORS = %w( / @ : | _ - # ^ ? )
   
+  def message(str)
+    puts <<-EOF
+    #{"*" * 78}
+    #{str}
+    #{"*" * 78}
+    EOF
+  end
+
   def replace(file, src, replace, opts = {})
     sep = SEPARATORS.detect { |x| !src.include?(x) && !replace.include?(x) }
     run "sed -i -e 's#{sep}#{src.escape_for_shell}#{sep}#{replace.escape_for_shell}#{sep}g' #{file}", opts
