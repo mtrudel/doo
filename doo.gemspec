@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.name = %q{doo}
-  s.version = "0.6.3"
+  s.version = "0.6.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mat Trudel"]
-  s.date = %q{2011-03-23}
+  s.date = %q{2011-03-25}
   s.default_executable = %q{doo}
   s.description = %q{Doo is a deployment scripting tool in the vein of capistrano and sprinkle that uses stacked contexts and a aspect-ish data model}
   s.email = ["mat@geeky.net"]
