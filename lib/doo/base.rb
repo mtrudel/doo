@@ -1,6 +1,7 @@
 module Doo
   class Base    
     def load(filename)
+      filename = find_file_in_load_path(filename)
       instance_eval(File.read(filename), filename)
     end
 
@@ -36,6 +37,17 @@ module Doo
       class << self
         self
       end
+    end
+
+    def find_file_in_load_path(file)
+      (["/", "."] + $:).each do |path|
+        ["", ".rb"].each do |ext|
+          name = File.join(path, "#{file}#{ext}")
+          return name if File.file?(name)
+        end
+      end
+
+      raise LoadError, "no such file to load -- #{file}"
     end
   end
 end
